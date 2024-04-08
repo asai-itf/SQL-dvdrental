@@ -88,3 +88,27 @@ GROUP BY c.customer_id
 ORDER BY "合計支払い金額" DESC, "合計レンタル回数" DESC LIMIT 5;
 ```
 
+<br>
+<br>
+
+1. サブクエリの実践:
+>・要件: rental テーブルから最も最近のレンタル日時を取得し、その日にレンタルされた映画のタイトルリストを取得するためのクエリを書く。この際、サブクエリを使用してください。
+
+```sql
+SELECT DISTINCT f.title FROM film f
+INNER JOIN inventory i ON f.film_id = i.film_id
+INNER JOIN rental r ON i.inventory_id = r.inventory_id
+WHERE r.rental_date >= (SELECT CAST(MAX(rental_date) AS DATE) FROM rental);
+```
+
+2. トランザクションの模倣:
+>・要件: 顧客が映画をレンタルし、その後に支払いを行う一連の処理をトランザクションとして実装する。
+
+```sql
+BEGIN;
+INSERT INTO rental(rental_date, inventory_id, customer_id, staff_id)
+VALUES (now(), 1, 1, 1);
+INSERT INTO payment(customer_id, staff_id, rental_id, amount, payment_date)
+VALUES (1, 1, 16050, 0.99, now());
+COMMIT;
+```
